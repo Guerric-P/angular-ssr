@@ -1,9 +1,12 @@
 import { HttpHandlerFn, HttpHeaders, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { environment } from '../environments/environment.development';
+import { PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 
 export const interceptInterceptor: HttpInterceptorFn = (req: any, next: HttpHandlerFn) => {
-  const url = `${(environment as any).baseBackendUrl}${req.url}`
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
+  const url = (isBrowser ? 'http://localhost:3000' : 'http://127.0.0.1:3000') + req.url;
   console.log(url);
   let headers = new HttpHeaders();
   headers = headers.append('Content-Type', 'application/json'); 
@@ -11,28 +14,3 @@ export const interceptInterceptor: HttpInterceptorFn = (req: any, next: HttpHand
 
   return next(finalReq);
 };
-
-// import { inject, makeStateKey, PLATFORM_ID, StateKey, TransferState } from '@angular/core';
-// import { map, of, tap } from 'rxjs';
-// import { isPlatformServer } from '@angular/common';
-
-  // const transferState = inject(TransferState);
-  // if (req.method !== 'GET') {
-  //   return next(req);
-  // }
-
-  // const key: StateKey<string> = makeStateKey<string>(req.urlWithParams);
-
-  // const storedResponse = transferState.get<any>(key, null);
-  // if (storedResponse) {
-  //   const response = new HttpResponse({ body: storedResponse, status: 200 });
-  //   transferState.remove(key);
-  //   return of(response);
-  // } else {
-  //   return next(req).pipe(map((event) => { 
-  //     if (event instanceof HttpResponse) {
-  //       transferState.set(key, (<HttpResponse<any>>event).body);
-  //     }
-  //     return event;
-  //   }));
-  // }
